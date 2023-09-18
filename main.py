@@ -82,7 +82,8 @@ for folder in dir_list:
             data = SimpleNamespace()  # this is the session data object that will be passed to functions. Corresponds to one replicate
 
             sample_name = file.replace(file_ext, '')
-            replicate_files = [os.path.join(input_params.parent_path, folder, r) for r in file_list if sample_name in r
+            replicate_files = [os.path.join(input_params.parent_path, folder, r) for r in file_list
+                               if os.path.splitext(r)[0] == sample_name
                                and os.path.isfile(os.path.join(input_params.parent_path, folder, r))]
 
             replicate_files = np.sort(replicate_files)
