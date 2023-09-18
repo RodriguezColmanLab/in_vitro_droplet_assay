@@ -124,7 +124,7 @@ def make_output_directories(input_params):
 
 
 def find_scaffold(data, input_params):
-    scaffold = np.zeros(shape=data.channel_images[0].shape, dtype=np.float)
+    scaffold = np.zeros(shape=data.channel_images[0].shape, dtype=float)
     scaffold = scaffold - input_params.b
     num_of_channels = len(data.channel_names)
 
@@ -357,8 +357,8 @@ def measure_droplets(data, input_params, bulk):
                 subset_coords_r = coords_r
                 subset_coords_c = coords_c
             else:
-                subset_coords_r, subset_coords_c = draw.circle(r=centroid_r, c=centroid_c,
-                                                               radius=round(math.sqrt(input_params.r/math.pi)))
+                subset_coords_r, subset_coords_c = draw.circle_perimeter(r=int(centroid_r), c=int(centroid_c),
+                                                               radius=int(round(math.sqrt(input_params.r / math.pi))))
 
             # in cases where droplets are near the edge, the circle will go beyond the image. In that case,
             # we simply ignore the droplet

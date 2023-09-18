@@ -57,7 +57,7 @@ replicate_writer = pd.ExcelWriter(
 
 graph_input = []
 sample_list = []
-sample_output = pd.DataFrame()
+sample_outputs = []
 
 for folder in dir_list:
     if not folder.startswith('.') and os.path.isdir(os.path.join(input_params.parent_path, folder)):
@@ -75,8 +75,8 @@ for folder in dir_list:
 
         # this loops over REPLICATES
         bulk_sig = {}  # dictionary where key = channel name and value = list of bulk (non-droplet) intensities per replicate
-        total_sig = {} # dictionary where key = channel name and value = list of total intensities per replicate
-        replicate_output = pd.DataFrame()
+        total_sig = {}  # dictionary where key = channel name and value = list of total intensities per replicate
+        replicate_outputs = list()
         input_params.replicate_count = 1
         for idx, file in enumerate(base_name_files):
             data = SimpleNamespace()  # this is the session data object that will be passed to functions. Corresponds to one replicate
@@ -91,8 +91,8 @@ for folder in dir_list:
             data = methods.find_scaffold(data, input_params)
             data, rep_bulk, rep_total = methods.find_droplets(data, input_params)
             data = methods.measure_droplets(data, input_params, rep_bulk)
-            replicate_output = replicate_output.append(data.replicate_output, ignore_index=True)
-            
+            replicate_outputs.append(data.replicate_output)
+
             if len(bulk_sig) == 0:
                 for c in data.channel_names:
                     bulk_sig[c] = [rep_bulk[c]]
@@ -112,6 +112,7 @@ for folder in dir_list:
             stop_idx = total_length - start_idx
             sheet_name = sheet_name[start_idx:stop_idx]
 
+        replicate_output = pd.concat(replicate_outputs, ignore_index=True)
         replicate_output.to_excel(replicate_writer, sheet_name=sheet_name, index=False)
 
         if len(replicate_output) > 0:
@@ -123,11 +124,11 @@ for folder in dir_list:
 
             temp_sample_output = methods.calc_summary_stats(folder, data.channel_names, replicate_output, input_params,
                                                             bulk_sig, total_sig)
+            sample_output = sample_outputs.append(temp_sample_output)
 
-            sample_output = sample_output.append(temp_sample_output, ignore_index=True)
-            
         print('Finished sample ', folder, ' at ', datetime.now())
-		
+
+sample_output = pd.DataFrame.from_records(sample_outputs)
 sample_output = sample_output.reindex(sorted(sample_output.columns, reverse=True), axis=1)
 sample_output.to_excel(sample_writer, sheet_name='summary', index=False)
 
@@ -142,8 +143,8 @@ for key, sheet in sample_writer.sheets.items():
         col_width = len(name) + 2
         sheet.set_column(idx, idx, col_width)
 
-replicate_writer.save()
-sample_writer.save()
+replicate_writer.close()
+sample_writer.close()
 
 # make boxplot with all droplets
 if len(graph_input) > 0:
