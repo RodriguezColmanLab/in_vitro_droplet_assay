@@ -75,17 +75,24 @@ def load_images(replicate_files, data, input_params, folder):
     if len(channel_image_files) < 1:
         print('Error: Could not find image files')
         sys.exit(0)
+    if len(channel_image_files) > 1:
+        print('Error: Found multiple TIFF files for the ND2 file')
 
-    channel_image_paths = []
-    channel_images = []
-    channel_names = []
-    for idx, p in enumerate(channel_image_files):
-        channel_image_paths.append(os.path.join(input_params.parent_path, folder, p))
-        channel_names.append(find_image_channel_name(p))
-        channel_images.append(img_as_float(io.imread(channel_image_paths[idx])))
+    channel_image_path = os.path.join(input_params.parent_path, folder, channel_image_files[0])
+    image = img_as_float(io.imread(channel_image_path))
 
-    data.channel_images = channel_images
-    data.channel_names = channel_names
+    if len(image.shape) == 2:
+        # 2D image
+        data.channel_images = [image]
+        data.channel_names = ["Channel 1"]
+    else:
+        channel_images = []
+        channel_names = []
+        for i in range(image.shape[0]):
+            channel_names.append(f"Channel {i + 1}")
+            channel_images.append(image[i])
+        data.channel_images = channel_images
+        data.channel_names = channel_names
 
     return data
 
