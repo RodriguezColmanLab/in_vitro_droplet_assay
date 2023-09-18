@@ -46,7 +46,7 @@ input_params = methods.make_output_directories(input_params)
 # get number of experiments/sub-directories to analyze
 dir_list = os.listdir(input_params.parent_path)
 dir_list.sort(reverse=False)
-file_ext = ".nd"
+file_ext = ".nd2"
 
 # this loops over EXPERIMENT FOLDERS
 sample_writer = pd.ExcelWriter(os.path.join(input_params.output_dirs['output_summary'], 'summary_droplet_output.xlsx'),

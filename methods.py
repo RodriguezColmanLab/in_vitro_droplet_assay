@@ -56,21 +56,21 @@ def parse_arguments(parser):
 
 def load_images(replicate_files, data, input_params, folder):
     # get replicate sample name
-    nd_file_name = [n for n in replicate_files if '.nd' in n]
+    nd_file_name = [n for n in replicate_files if '.nd2' in n]
     if len(nd_file_name) == 1:
         sample_name = get_sample_name(nd_file_name[0])
         data.sample_name = sample_name
     elif len(nd_file_name) == 0:
-        print('Error: Could not find .nd files')
+        print('Error: Could not find .nd2 files')
         sys.exit(0)
     else:
-        print('Error: Found too many .nd files in sample directory')
+        print('Error: Found too many .nd2 files in sample directory')
         sys.exit(0)
 
     print(sample_name)
 
     # load images
-    channel_image_files = [c for c in replicate_files if get_file_extension(c) == '.TIF']
+    channel_image_files = [c for c in replicate_files if get_file_extension(c) == '.tif']
 
     if len(channel_image_files) < 1:
         print('Error: Could not find image files')
