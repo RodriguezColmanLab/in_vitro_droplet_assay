@@ -5,13 +5,6 @@ import os
 import math
 from itertools import combinations
 
-# Graphs to consider making:
-#     Boxplot and dots for all droplets
-#     Mean +/- stdev for image averages
-#     Droplet size/area histogram
-#     Intensity in one channel vs. the other (to look at heterotypic vs homotypic droplets)
-
-
 def make_droplet_boxplot(data, groups, output_dirs, input_params):
 
     # data is a list where each element is a combined replicate_output
@@ -142,7 +135,6 @@ def make_average_sample_graph(data, output_dirs, input_args):
         plt.savefig(os.path.join(output_dirs['output_summary'], c + '_average.pdf'),
                     format='eps')
         plt.close()
-
 
 
 

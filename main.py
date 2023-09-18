@@ -1,6 +1,5 @@
-#!/lab/solexa_young/scratch/jon_henninger/tools/venv/bin/python
-
 import matplotlib
+
 matplotlib.use('Agg')
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
@@ -8,8 +7,8 @@ matplotlib.rcParams['text.usetex'] = False
 matplotlib.rcParams['font.sans-serif'] = 'Arial'
 matplotlib.rcParams['font.family'] = 'sans-serif'
 
-#import in_vitro_droplet_assay.methods as methods
-#import in_vitro_droplet_assay.grapher as grapher
+# import in_vitro_droplet_assay.methods as methods
+# import in_vitro_droplet_assay.grapher as grapher
 import methods
 import grapher
 
@@ -18,7 +17,7 @@ import numpy as np
 import os
 import sys
 import math
-#import matplotlib
+# import matplotlib
 # matplotlib.use('Agg')
 # matplotlib.use('Qt5Agg')
 # from matplotlib import pyplot as plt
@@ -28,19 +27,19 @@ from datetime import datetime
 from types import SimpleNamespace
 from skimage import io, filters, measure, color, exposure, morphology, feature, img_as_float, img_as_uint
 
-#TODO Implement watershed algorithm on the droplets
-#TODO correct for uneven illumination
-#TODO Better background subtraction that isn't just a straight value
-#TODO Better [Cout] by averaging randomized images
+# TODO Implement watershed algorithm on the droplets
+# TODO correct for uneven illumination
+# TODO Better background subtraction that isn't just a straight value
+# TODO Better [Cout] by averaging randomized images
 
-# This is written so that all replicates for a given experiment are in a folder together (both .TIF and .nd files)
+# This is written so that all replicates for a given experiment are in a folder together (both .TIF and .nd2 files)
 
 # parse input
 parser = argparse.ArgumentParser()
 
 input_params = methods.parse_arguments(parser)
-input_params.parent_path = input_params.parent_path.replace("Volumes","lab")
-input_params.output_path = input_params.output_path.replace("Volumes","lab")
+input_params.parent_path = input_params.parent_path.replace("Volumes", "lab")
+input_params.output_path = input_params.output_path.replace("Volumes", "lab")
 
 input_params = methods.make_output_directories(input_params)
 
@@ -51,7 +50,7 @@ file_ext = ".nd"
 
 # this loops over EXPERIMENT FOLDERS
 sample_writer = pd.ExcelWriter(os.path.join(input_params.output_dirs['output_summary'], 'summary_droplet_output.xlsx'),
-                                 engine='xlsxwriter')
+                               engine='xlsxwriter')
 replicate_writer = pd.ExcelWriter(
     os.path.join(input_params.output_dirs['output_individual'], 'individual_droplet_output.xlsx'),
     engine='xlsxwriter')
@@ -66,7 +65,7 @@ for folder in dir_list:
         # print(f'Sample: {folder}')
         print('Sample: ', folder)
         sample_list.append(folder)
-		
+
         file_list = os.listdir(os.path.join(input_params.parent_path, folder))
 
         base_name_files = [f for f in file_list if file_ext in f
@@ -95,22 +94,21 @@ for folder in dir_list:
             replicate_output = replicate_output.append(data.replicate_output, ignore_index=True)
             
             if len(bulk_sig) == 0:
-            	for c in data.channel_names:
-            		bulk_sig[c] = [rep_bulk[c]]
-            		total_sig[c] = [rep_total[c]]
-            		
+                for c in data.channel_names:
+                    bulk_sig[c] = [rep_bulk[c]]
+                    total_sig[c] = [rep_total[c]]
+
             else:
-            	for c in data.channel_names:
-            		bulk_sig[c].append(rep_bulk[c])
-            		total_sig[c].append(rep_total[c])
+                for c in data.channel_names:
+                    bulk_sig[c].append(rep_bulk[c])
+                    total_sig[c].append(rep_total[c])
 
             input_params.replicate_count += 1
-		
-		
+
         sheet_name = folder
         if len(sheet_name) > 30:
             total_length = len(sheet_name)
-            start_idx = math.floor((total_length - 30)/2)
+            start_idx = math.floor((total_length - 30) / 2)
             stop_idx = total_length - start_idx
             sheet_name = sheet_name[start_idx:stop_idx]
 
@@ -121,9 +119,11 @@ for folder in dir_list:
             grapher.make_droplet_size_histogram(folder, replicate_output, input_params.output_dirs, input_params)
 
             if len(data.channel_names) > 1:
-            	grapher.make_droplet_intensity_scatter(folder, data, input_params.output_dirs, input_params)
+                grapher.make_droplet_intensity_scatter(folder, data, input_params.output_dirs, input_params)
 
-            temp_sample_output = methods.calc_summary_stats(folder, data.channel_names, replicate_output, input_params, bulk_sig, total_sig)
+            temp_sample_output = methods.calc_summary_stats(folder, data.channel_names, replicate_output, input_params,
+                                                            bulk_sig, total_sig)
+
             sample_output = sample_output.append(temp_sample_output, ignore_index=True)
             
         print('Finished sample ', folder, ' at ', datetime.now())
@@ -156,7 +156,7 @@ print()
 print('Finished making plots at: ', datetime.now())
 
 with open(os.path.join(input_params.output_dirs['output_parent'], 'output_analysis_parameters.txt'), 'w') as file:
-        file.write(json.dumps(input_params, default=str))
-        
+    file.write(json.dumps(input_params, default=str))
+
 print('---------------------------------')
 print('Completed at ', datetime.now())

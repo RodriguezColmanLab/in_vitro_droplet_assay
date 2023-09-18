@@ -1,3 +1,4 @@
+# matplotlib.use('Qt5Agg')
 from skimage import io, filters, measure, color, exposure, morphology, feature, img_as_float, img_as_uint, draw
 from scipy import ndimage as ndi
 import pandas as pd
@@ -17,9 +18,7 @@ import cv2
 from types import SimpleNamespace
 from pprint import pprint
 
-
 def parse_arguments(parser):
-
     # required arguments
     parser.add_argument('parent_path', type=str,
                         help='Full path to folder that contains subfolders of experiments with data')
@@ -92,23 +91,23 @@ def load_images(replicate_files, data, input_params, folder):
 
 
 def make_output_directories(input_params):
-
     output_parent_dir = input_params.output_path
 
     output_dirs = {'output_parent': output_parent_dir,
                    'output_individual': os.path.join(output_parent_dir, 'individual'),
                    'output_summary': os.path.join(output_parent_dir, 'summary'),
-                   'output_individual_images': os.path.join(output_parent_dir,'individual','droplet_images')}
+                   'output_individual_images': os.path.join(output_parent_dir, 'individual', 'droplet_images')}
 
     # make folders if they don't exist
     if not os.path.isdir(output_parent_dir):
         os.mkdir(output_parent_dir)
 
     for key, folder in output_dirs.items():
-        if key is not 'output_parent':
+        if key != 'output_parent':
             if not os.path.isdir(folder):
-                if not os.path.isdir(os.path.dirname(folder)):  # so I guess .items() is random order of dictionary keys. So when making subfolders, if the parent doesn't exist, then we would get an error. This accounts for that.
-                        os.mkdir(os.path.dirname(folder))
+                if not os.path.isdir(os.path.dirname(
+                        folder)):  # so I guess .items() is random order of dictionary keys. So when making subfolders, if the parent doesn't exist, then we would get an error. This accounts for that.
+                    os.mkdir(os.path.dirname(folder))
 
                 os.mkdir(folder)
 
@@ -159,7 +158,7 @@ def find_scaffold(data, input_params):
         else:  # default using the average scaffold
 
             for img in data.channel_images:
-                scaffold = scaffold + img/num_of_channels
+                scaffold = scaffold + img / num_of_channels
 
             scaffold[np.where(scaffold < 0)] = 0  # to correct for background subtraction
             data.scaffold_output_img = scaffold
@@ -171,7 +170,7 @@ def find_scaffold(data, input_params):
 
 
 def modify_bf_img(img):
-    #process brightfield image that should already be type float
+    # process brightfield image that should already be type float
     median_img = img_as_uint(img)
     median_img = cv2.medianBlur(median_img, ksize=5)
     median_img = img_as_float(median_img)
@@ -191,8 +190,8 @@ def find_droplets(data, input_params):
     # Since we have already standardized the image, the threshold is simply the value of the image.
 
     binary_mask = np.full(shape=(scaffold.shape[0], scaffold.shape[1]), fill_value=False, dtype=bool)
-    scaffold_binary = np.full(shape=(scaffold.shape[0], scaffold.shape[1]), fill_value= False, dtype=bool)
-    
+    scaffold_binary = np.full(shape=(scaffold.shape[0], scaffold.shape[1]), fill_value=False, dtype=bool)
+
     binary_mask[scaffold > threshold_multiplier] = True
     scaffold_binary[binary_mask] = True
 
@@ -226,7 +225,7 @@ def find_droplets(data, input_params):
     scaffold_filtered_binary_labeled = measure.label(scaffold_mask)
     scaffold_filtered_regionprops = measure.regionprops(scaffold_filtered_binary_labeled)
     data.scaffold_filtered_regionprops = scaffold_filtered_regionprops
-    
+
     print('Found ', len(scaffold_filtered_regionprops), ' droplets')
 
     # get measurements of bulk regions excluding droplets and total intensity of entire image (including droplets)
@@ -295,17 +294,17 @@ def find_droplets(data, input_params):
         #     random_bulk_image[..., 2] = client_b_random_average_image  # B
     else:
         bulk_mask = np.invert(scaffold_mask)
-        
+
         bulk = {}
         total = {}
         for c_idx, img in enumerate(data.channel_images):
-                bulk[data.channel_names[c_idx]] = np.mean(img[bulk_mask]) * 65536
-                total[data.channel_names[c_idx]] = np.sum(img) * 65536
-                
+            bulk[data.channel_names[c_idx]] = np.mean(img[bulk_mask]) * 65536
+            total[data.channel_names[c_idx]] = np.sum(img) * 65536
+
     return data, bulk, total
 
-def measure_droplets(data, input_params, bulk):
 
+def measure_droplets(data, input_params, bulk):
     scaffold = data.scaffold
     channels = data.channel_names
     scaffold_filtered_regionprops = data.scaffold_filtered_regionprops
@@ -381,11 +380,11 @@ def measure_droplets(data, input_params, bulk):
                     total_intensity = np.sum(img[coords_r, coords_c]) * 65536
 
                     if input_params.pr == 'subset':
-                        partition_ratio = subset_intensity/bulk[data.channel_names[c_idx]]
+                        partition_ratio = subset_intensity / bulk[data.channel_names[c_idx]]
                     elif input_params.pr == 'mean':
-                        partition_ratio = mean_intensity/bulk[data.channel_names[c_idx]]
-                    elif input_params.pr== 'max':
-                        partition_ratio = max_intensity/bulk[data.channel_names[c_idx]]
+                        partition_ratio = mean_intensity / bulk[data.channel_names[c_idx]]
+                    elif input_params.pr == 'max':
+                        partition_ratio = max_intensity / bulk[data.channel_names[c_idx]]
                     else:
                         partition_ratio = -2  # just a sanity check. Should never happen.
 
@@ -420,7 +419,7 @@ def measure_droplets(data, input_params, bulk):
                     total_I_list[c_idx].append(total_intensity)
                     bulk_I_list[c_idx].append(bulk[data.channel_names[c_idx]])
                     partition_ratio_list[c_idx].append(partition_ratio)
-                
+
     else:
         sample_list.append(s)
         replicate_list.append(r)
@@ -437,7 +436,7 @@ def measure_droplets(data, input_params, bulk):
             total_I_list[c_idx].append(0.0)
             bulk_I_list[c_idx].append(0.0)
             partition_ratio_list[c_idx].append(0.0)
-        
+
     replicate_output = pd.DataFrame({'sample': sample_list,
                                      'replicate': replicate_list,
                                      'droplet_id': droplet_id_list,
@@ -445,8 +444,8 @@ def measure_droplets(data, input_params, bulk):
                                      'centroid_r': centroid_r_list,
                                      'centroid_c': centroid_c_list,
                                      'circularity': circularity_list},
-                                      columns=['sample', 'replicate', 'droplet_id', 'area',
-                                      'centroid_r', 'centroid_c', 'circularity'])
+                                    columns=['sample', 'replicate', 'droplet_id', 'area',
+                                             'centroid_r', 'centroid_c', 'circularity'])
 
     for c_idx, c in enumerate(data.channel_images):
         replicate_output['subset_I_' + str(channels[c_idx])] = subset_I_list[c_idx]
@@ -459,7 +458,6 @@ def measure_droplets(data, input_params, bulk):
     data.label_image = label_image
     data.replicate_output = replicate_output
 
-
     if input_params.output_image_flag:
         if input_params.randomize_bulk_flag:
             pass
@@ -468,7 +466,8 @@ def measure_droplets(data, input_params, bulk):
             #                    input_args, random_bulk_image=random_bulk_image)
         else:
             if len(scaffold_filtered_regionprops) > 0:
-                make_droplet_image(input_params.output_dirs['output_individual_images'], data, droplet_id_list, droplet_id_centroid_r,
+                make_droplet_image(input_params.output_dirs['output_individual_images'], data, droplet_id_list,
+                                   droplet_id_centroid_r,
                                    droplet_id_centroid_c, input_params)
 
     return data
@@ -476,7 +475,8 @@ def measure_droplets(data, input_params, bulk):
 
 def subtract_background(input_image):
     image_hist, image_bin_edges = np.histogram(input_image, bins='auto')
-    background_threshold = image_bin_edges[np.argmax(image_hist)]  # assumes that the max hist peak corresponds to background pixels
+    background_threshold = image_bin_edges[
+        np.argmax(image_hist)]  # assumes that the max hist peak corresponds to background pixels
     output_image = input_image - background_threshold
     output_image[output_image < 0] = 0
 
@@ -485,7 +485,6 @@ def subtract_background(input_image):
 
 
 def calc_summary_stats(sample, ch_names, rep_data, input_params, bulk, total):
-    
     pr_mean = {}
     pr_std = {}
     cf_mean = {}
@@ -493,7 +492,7 @@ def calc_summary_stats(sample, ch_names, rep_data, input_params, bulk, total):
     sample_output = {'sample': sample}
     for c in ch_names:
         pr_cols = [col for col in rep_data.columns if all(['partition' in col, c in col])]
-        
+
         if len(pr_cols) > 1:
             print('Error: Found multiple partition ratio columns for channel ', c)
             sys.exit(0)
@@ -501,9 +500,9 @@ def calc_summary_stats(sample, ch_names, rep_data, input_params, bulk, total):
             print('Error: Could not find partition ratio column for channel ', c)
             sys.exit(0)
         else:
-            pr_mean[c] = np.mean(rep_data[pr_cols])[0]
-            pr_std[c] = np.std(rep_data[pr_cols])[0]
-        
+            pr_mean[c] = np.mean(rep_data[pr_cols])
+            pr_std[c] = np.std(rep_data[pr_cols])
+
             replicate_id = np.unique(rep_data['replicate'])
             print('Replicate ID is ', replicate_id)
             rep_total = []
@@ -513,14 +512,13 @@ def calc_summary_stats(sample, ch_names, rep_data, input_params, bulk, total):
 
             cf_mean[c] = np.mean(np.divide(rep_total, total[c]))
             cf_std[c] = np.std(np.divide(rep_total, total[c]))
-    
-        
+
     for c in ch_names:
         sample_output['partition_ratio_mean_' + str(c)] = pr_mean.get(c)
         sample_output['partition_ratio_std_' + str(c)] = pr_std.get(c)
         sample_output['condensed_fraction_mean_' + str(c)] = cf_mean.get(c)
         sample_output['condensed_fraction_std_' + str(c)] = cf_std.get(c)
-    
+
     return sample_output
 
 
@@ -536,8 +534,8 @@ def make_axes_blank(ax):
 
 
 def make_droplet_image(output_path, data, droplet_list, droplet_c, droplet_r, input_params):
-	# NOTE: I know that c and r are swapped in the arguments compared to what I actually input. It works this way
-	# @jonH 190411
+    # NOTE: I know that c and r are swapped in the arguments compared to what I actually input. It works this way
+    # @jonH 190411
     fig, ax = plt.subplots(1, 1, figsize=(3, 3))
     scaffold_image = exposure.rescale_intensity(data.scaffold_output_img)
 
@@ -559,7 +557,8 @@ def make_droplet_image(output_path, data, droplet_list, droplet_c, droplet_r, in
     for i, drop_id in enumerate(droplet_list):
         ax.text(droplet_r[i], droplet_c[i], drop_id, color='w', fontsize=4)
 
-    plt.savefig(os.path.join(output_path, data.sample_name + '_rep' + str(input_params.replicate_count) + '.png'), dpi=300)
+    plt.savefig(os.path.join(output_path, data.sample_name + '_rep' + str(input_params.replicate_count) + '.png'),
+                dpi=300)
     plt.close()
 
     #
@@ -586,7 +585,7 @@ def make_droplet_image(output_path, data, droplet_list, droplet_c, droplet_r, in
 
 def find_image_channel_name(file_name):
     str_idx = file_name.find('Conf ')  # this is specific to our microscopes file name format
-    channel_name = file_name[str_idx + 5 : str_idx + 8]
+    channel_name = file_name[str_idx + 5: str_idx + 8]
 
     channel_name = 'ch' + channel_name
 
@@ -604,6 +603,7 @@ def get_sample_name(nd_file_name):
     sample_name, ext = os.path.splitext(nd_file_name)
 
     return sample_name
+
 
 def get_file_extension(file_path):
     file_ext = os.path.splitext(file_path)
