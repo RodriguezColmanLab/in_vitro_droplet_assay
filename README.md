@@ -24,5 +24,5 @@ To run the script, open Anaconda Prompt and run the following code:
     python main.py pathtofolder pathtooutput
 
 
-See [IN VITRO DROPLET INSTRUCTIONS.txt](IN VITRO DROPLET INSTRUCTIONS.txt) for optional parameters.
+See [IN VITRO DROPLET INSTRUCTIONS.txt](https://github.com/RodriguezColmanLab/in_vitro_droplet_assay/blob/master/IN%20VITRO%20DROPLET%20INSTRUCTIONS.txt) for optional parameters.
 
