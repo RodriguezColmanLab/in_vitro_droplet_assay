@@ -152,8 +152,11 @@ def find_scaffold(data, input_params):
                 scaffold = standardize_img(scaffold)
     else:
         if input_params.s:  # when the user specifies a scaffold channel
-            scaffold_channel_name = 'ch' + input_params.s
+            scaffold_channel_name = 'Channel ' + input_params.s
             scaffold_test = [b == scaffold_channel_name for b in data.channel_names]
+            if len(scaffold_test) == 0:
+                raise ValueError(f"No channel found with name {scaffold_channel_name}, we only have "
+                                 + str([b for b in data.channel_names]))
 
             for idx, c in enumerate(data.channel_names):
                 if scaffold_test[idx]:
