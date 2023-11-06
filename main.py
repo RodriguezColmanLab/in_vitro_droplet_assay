@@ -45,7 +45,7 @@ input_params = methods.make_output_directories(input_params)
 
 # get number of experiments/sub-directories to analyze
 dir_list = os.listdir(input_params.parent_path)
-dir_list.sort(reverse=False)
+dir_list.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
 file_ext = ".nd2"
 
 # this loops over EXPERIMENT FOLDERS
