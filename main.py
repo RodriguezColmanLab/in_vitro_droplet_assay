@@ -15,7 +15,6 @@ import grapher
 import pandas as pd
 import numpy as np
 import os
-import sys
 import math
 # import matplotlib
 # matplotlib.use('Agg')
@@ -23,6 +22,7 @@ import math
 # from matplotlib import pyplot as plt
 import argparse
 import json
+import re
 from datetime import datetime
 from types import SimpleNamespace
 from skimage import io, filters, measure, color, exposure, morphology, feature, img_as_float, img_as_uint
@@ -44,8 +44,14 @@ input_params.output_path = input_params.output_path.replace("Volumes", "lab")
 input_params = methods.make_output_directories(input_params)
 
 # get number of experiments/sub-directories to analyze
+def extract_number(file_name):
+    search_result = re.search("[0-9]+(\\.[0-9]+)?", file_name)
+    if search_result is None:
+        return 0
+    return float(search_result.group(0))
+
 dir_list = os.listdir(input_params.parent_path)
-dir_list.sort(key=lambda f: int(''.join(filter(str.isdigit, f))))
+dir_list.sort(key=extract_number)
 file_ext = ".nd2"
 
 # this loops over EXPERIMENT FOLDERS
