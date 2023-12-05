@@ -106,8 +106,7 @@ def make_output_directories(input_params):
                    'output_individual_images': os.path.join(output_parent_dir, 'individual', 'droplet_images')}
 
     # make folders if they don't exist
-    if not os.path.isdir(output_parent_dir):
-        os.mkdir(output_parent_dir)
+    os.makedirs(output_parent_dir, exist_ok=True)
 
     for key, folder in output_dirs.items():
         if key != 'output_parent':
