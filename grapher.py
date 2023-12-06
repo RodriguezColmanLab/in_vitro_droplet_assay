@@ -46,7 +46,8 @@ def make_droplet_size_histogram(sample_name, data, output_dirs, input_args):
     size_data = data['area'].tolist()
 
     fig, ax = plt.subplots()
-    ax.hist(size_data, bins=50, density=True)
+    if len(size_data) > 0:
+        ax.hist(size_data, bins=50, density=True)
 
     plt.title(sample_name)
 

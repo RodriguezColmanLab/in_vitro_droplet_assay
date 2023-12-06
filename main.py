@@ -122,16 +122,15 @@ for folder in dir_list:
         replicate_output = pd.concat(replicate_outputs, ignore_index=True)
         replicate_output.to_excel(replicate_writer, sheet_name=sheet_name, index=False)
 
-        if len(replicate_output) > 0:
-            graph_input.append(replicate_output)
-            grapher.make_droplet_size_histogram(folder, replicate_output, input_params.output_dirs, input_params)
+        graph_input.append(replicate_output)
+        grapher.make_droplet_size_histogram(folder, replicate_output, input_params.output_dirs, input_params)
 
-            if len(data.channel_names) > 1:
-                grapher.make_droplet_intensity_scatter(folder, data, input_params.output_dirs, input_params)
+        if len(data.channel_names) > 1:
+            grapher.make_droplet_intensity_scatter(folder, data, input_params.output_dirs, input_params)
 
-            temp_sample_output = methods.calc_summary_stats(folder, data.channel_names, replicate_output, input_params,
-                                                            bulk_sig, total_sig)
-            sample_output = sample_outputs.append(temp_sample_output)
+        temp_sample_output = methods.calc_summary_stats(folder, data.channel_names, replicate_output, input_params,
+                                                        bulk_sig, total_sig)
+        sample_output = sample_outputs.append(temp_sample_output)
 
         print('Finished sample ', folder, ' at ', datetime.now())
 

@@ -429,23 +429,6 @@ def measure_droplets(data, input_params, bulk):
                     bulk_I_list[c_idx].append(bulk[data.channel_names[c_idx]])
                     partition_ratio_list[c_idx].append(partition_ratio)
 
-    else:
-        sample_list.append(s)
-        replicate_list.append(r)
-        droplet_id_list.append(0.0)
-        area_list.append(0.0)
-        centroid_r_list.append(0.0)
-        centroid_c_list.append(0.0)
-        circularity_list.append(0.0)
-
-        for c_idx, c in enumerate(channels):
-            subset_I_list[c_idx].append(0.0)
-            mean_I_list[c_idx].append(0.0)
-            max_I_list[c_idx].append(0.0)
-            total_I_list[c_idx].append(0.0)
-            bulk_I_list[c_idx].append(0.0)
-            partition_ratio_list[c_idx].append(0.0)
-
     replicate_output = pd.DataFrame({'sample': sample_list,
                                      'replicate': replicate_list,
                                      'droplet_id': droplet_id_list,
@@ -512,7 +495,7 @@ def calc_summary_stats(sample, ch_names, rep_data, input_params, bulk, total):
             pr_mean[c] = np.mean(rep_data[pr_cols])
             pr_std[c] = np.std(rep_data[pr_cols])
 
-            replicate_id = np.unique(rep_data['replicate'])
+            replicate_id = np.arange(1, len(total[c]) + 1)
             print('Replicate ID is ', replicate_id)
             rep_total = []
             for r in replicate_id:
