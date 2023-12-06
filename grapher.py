@@ -5,12 +5,14 @@ import os
 import math
 from itertools import combinations
 
-def make_droplet_boxplot(data, groups, output_dirs, input_params):
+def make_boxplots(data, groups, output_dirs, input_params):
 
     # data is a list where each element is a combined replicate_output
-    pr_cols = [col for col in data[0].columns if 'partition' in col]  # need to identify all columns with partition ratios
-    for channel in pr_cols:
-        plot_data = [d[channel] for d in data]
+
+    # find all columns that we want to plot
+    plotted_columns = [col for col in data[0].columns if 'partition' in col] + ["area", "circularity"]
+    for plotted_column_name in plotted_columns:
+        plot_data = [d[plotted_column_name] for d in data]
         # groups = [np.unique(g['sample']) for g in data]
 	    # groups = [item for items in groups for item in items]
 
@@ -33,12 +35,12 @@ def make_droplet_boxplot(data, groups, output_dirs, input_params):
         plt.xticks(rotation=45, ha='right')
 
         plt.ylim(bottom=0)
-        plt.ylabel(channel)
+        plt.ylabel(plotted_column_name)
 
         plt.tight_layout()
 
-        plt.savefig(os.path.join(output_dirs['output_individual'], channel + '_droplet_boxplot.png'), dpi=300, format='png')
-        plt.savefig(os.path.join(output_dirs['output_individual'], channel + '_droplet_boxplot.pdf'), format='pdf')
+        plt.savefig(os.path.join(output_dirs['output_individual'], plotted_column_name + '_boxplot.png'), dpi=300, format='png')
+        plt.savefig(os.path.join(output_dirs['output_individual'], plotted_column_name + '_boxplot.pdf'), format='pdf')
         plt.close()
 
 
