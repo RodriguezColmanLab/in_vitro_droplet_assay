@@ -403,31 +403,6 @@ def measure_droplets(data, input_params, bulk):
                     total_I_list[c_idx].append(total_intensity)
                     bulk_I_list[c_idx].append(bulk[data.channel_names[c_idx]])
                     partition_ratio_list[c_idx].append(partition_ratio)
-            else:
-                droplet_id = i
-                droplet_id_centroid_r.append(0)
-                droplet_id_centroid_c.append(0)
-
-                sample_list.append(s)
-                replicate_list.append(r)
-                droplet_id_list.append(droplet_id)
-                area_list.append(0)
-                centroid_r_list.append(0)
-                centroid_c_list.append(0)
-                circularity_list.append(0)
-
-                for c_idx, img in enumerate(data.channel_images):
-                    mean_intensity = 0
-                    max_intensity = 0
-                    subset_intensity = 0
-                    total_intensity = 0
-                    partition_ratio = 0
-                    subset_I_list[c_idx].append(subset_intensity)
-                    mean_I_list[c_idx].append(mean_intensity)
-                    max_I_list[c_idx].append(max_intensity)
-                    total_I_list[c_idx].append(total_intensity)
-                    bulk_I_list[c_idx].append(bulk[data.channel_names[c_idx]])
-                    partition_ratio_list[c_idx].append(partition_ratio)
 
     replicate_output = pd.DataFrame({'sample': sample_list,
                                      'replicate': replicate_list,
