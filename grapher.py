@@ -5,7 +5,7 @@ import os
 import math
 from itertools import combinations
 
-def make_boxplots(data, groups, output_dirs, input_params):
+def make_boxplots(data, groups, output_dirs):
 
     # data is a list where each element is a combined replicate_output
 
@@ -21,9 +21,9 @@ def make_boxplots(data, groups, output_dirs, input_params):
         for i in range(len(groups)):
             y = plot_data[i]
             if len(y) < 1 or y.empty:
-                y = 0
+                y = [0.0]
                 x = 1 + i
-                plot_data[i] = 0.0
+                plot_data[i] = [0.0]
             else:
                 x = np.random.normal(1 + i, 0.04, size=len(y))
 
@@ -140,4 +140,20 @@ def make_average_sample_graph(data, output_dirs, input_args):
         plt.close()
 
 
+def make_droplet_count_histogram(graph_input, sample_list, output_dirs):
+    droplet_counts = list()
+    for sample_group in graph_input:
+        droplet_counts.append(len(sample_group))
+    x_values = list(range(len(sample_list)))
 
+    fig, ax = plt.subplots()
+    ax.bar(x_values, droplet_counts, width=1)
+    ax.set_xlim(-0.5, max(6, len(x_values)) + 0.5)
+    ax.set_ylim(bottom=0)
+    ax.set_xticks(x_values, sample_list, rotation=45, ha='left')
+    ax.set_ylabel("Droplet count")
+    plt.tight_layout()
+    plt.savefig(os.path.join(output_dirs['output_summary'], 'droplet_count_histogram.png'),
+                dpi=300, format='png')
+    plt.savefig(os.path.join(output_dirs['output_summary'], 'droplet_count_histogram.pdf'))
+    plt.close()

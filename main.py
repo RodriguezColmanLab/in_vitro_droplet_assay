@@ -154,7 +154,8 @@ sample_writer.close()
 
 # make boxplot with all droplets
 if len(graph_input) > 0:
-    grapher.make_boxplots(graph_input, sample_list, input_params.output_dirs, input_params)
+    grapher.make_boxplots(graph_input, sample_list, input_params.output_dirs)
+    grapher.make_droplet_count_histogram(graph_input, sample_list, input_params.output_dirs)
 
 # if len(sample_output) > 0:
 #     grapher.make_average_sample_graph(sample_output, output_dirs, input_args)
